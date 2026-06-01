@@ -4,3 +4,9 @@ __pycache__/
 *.pyc
 .env
 *_backup.xlsx
+data/raw/
+*.pdf
+data/raw/
+*.pdf
+data/raw/
+*.pdf
