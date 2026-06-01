@@ -80,7 +80,7 @@ def fetch_fund_nav(fund_code):
         if 'Data_netWorthTrend' in text:
             import re
             # 找最后一个数据点
-            pattern = r'\{x:(\d+),y:([\d.]+),equityReturn:([\d.-]+),unitMoney:"([^"]*)"\}'
+            pattern = r'\{"x":(\d+),"y":([\d.]+),"equityReturn":([\d.-]+),"unitMoney":"([^"]*)"\}'
             matches = re.findall(pattern, text)
             if matches:
                 last = matches[-1]

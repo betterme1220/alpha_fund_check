@@ -1,22 +1,29 @@
 {
+    "active_fund": "180031",
     "funds": {
         "180031": {
             "name": "银华中小盘",
             "manager_key_person": "李晓星",
-            "benchmark": "中证700指数收益率×80%+中证综合债指数收益率×20%",
-            "stock_position_range": [60, 95],
-            "small_mid_cap_min_ratio": 80,
+            "manager_team": ["李晓星", "张萍", "杜宇"],
             "scale_upper_limit": 100,
             "max_drawdown_threshold": -25,
-            "drawdown_vs_benchmark_threshold": -15,
             "underperform_quarters_limit": 4,
-            "top10_concentration_limit": 60,
-            "defense_asset_min_ratio": 10
+            "rules": {
+                "red_flags": [
+                    "核心基金经理离任",
+                    "三人团队12个月内离任>=2人",
+                    "规模超上限",
+                    "规模6个月内翻倍"
+                ],
+                "yellow_flags": [
+                    "前十大集中度>60%",
+                    "防御资产占比<10%",
+                    "近6个月跑输基准超5%"
+                ]
+            }
         }
     },
-    "active_fund": "180031",
     "master_excel_path": "data/output/all_in主动基金风控纪律手册.xlsx",
     "data_raw_path": "data/raw",
-    "data_processed_path": "data/processed",
-    "log_path": "logs"
+    "backup_pool": ["005827", "001714", "000547"]
 }
