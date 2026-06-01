@@ -20,8 +20,9 @@ from monthly_check import fetch_fund_detail, fetch_benchmark_return, calculate_m
 def get_pool_funds():
     """
     从大表'备用基金池' sheet 读取候选基金列表
-    如果读取失败，返回默认列表
+    只提取有效的6位数字基金代码，忽略描述性文字
     """
+    import re as _re
     try:
         df = read_sheet('备用基金池')
         # 尝试找基金代码列
@@ -32,15 +33,15 @@ def get_pool_funds():
                 break
 
         if code_col:
-            codes = df[code_col].dropna().astype(str).tolist()
-            # 清理代码格式
-            codes = [c.split('.')[0].zfill(6) for c in codes if c.strip() and c != 'nan']
-            return codes
+            raw = df[code_col].dropna().astype(str).tolist()
+            codes = [c.strip() for c in raw if _re.match(r'^\d{6}$', c.strip())]
+            if codes:
+                return codes
 
     except Exception as e:
         print(f"  [提示] 读取备用基金池失败: {e}")
 
-    # 默认备用池（可在config中配置）
+    # fallback: 从config读取
     config = load_config()
     return config.get('backup_pool', [])
 
@@ -86,12 +87,7 @@ def fetch_fund_basic_info(fund_code):
 
 def scan_pool():
     """扫描备用基金池，获取所有候选基金的最新状态"""
-    config = load_config()
-    pool_codes = config.get('backup_pool', [])
-
-    if not pool_codes:
-        # 尝试从大表读取
-        pool_codes = get_pool_funds()
+    pool_codes = get_pool_funds()
 
     if not pool_codes:
         print("  备用基金池为空，请在 config/fund_config.json 的 backup_pool 中添加基金代码")

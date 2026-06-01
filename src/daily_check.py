@@ -5,6 +5,7 @@
 
 import sys
 import os
+import re
 import json
 import requests
 from datetime import datetime
@@ -23,6 +24,29 @@ def fetch_fund_managers(fund_code):
     从东方财富基金档案页抓取当前基金经理名单
     返回：list of str，如 ["李晓星", "张萍", "杜宇"]
     """
+    url = f"http://fund.eastmoney.com/pingzhongdata/{fund_code}.js"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Referer": f"http://fund.eastmoney.com/{fund_code}.html"
+    }
+
+    try:
+        resp = requests.get(url, headers=headers, timeout=10)
+        resp.encoding = 'utf-8'
+        text = resp.text
+
+        # 提取 Data_currentFundManager 部分
+        match = re.search(r'var Data_currentFundManager\s*=\s*(\[.*?\]);', text)
+        if match:
+            manager_text = match.group(1)
+            names = re.findall(r'"name":"([^"]+)"', manager_text)
+            if names:
+                return names
+
+    except Exception as e:
+        print(f"  [错误] 获取经理信息失败(接口): {e}")
+
+    # 备用方案：从基金页面 HTML 解析
     url = f"http://fund.eastmoney.com/{fund_code}.html"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -33,19 +57,15 @@ def fetch_fund_managers(fund_code):
         resp.encoding = 'utf-8'
         soup = BeautifulSoup(resp.text, 'html.parser')
 
-        # 东方财富基金页面，基金经理在 class="infoOfFund" 的 table 里
         info_div = soup.find('div', class_='infoOfFund')
         if info_div:
-            # 找包含"基金经理"的行
             for td in info_div.find_all('td'):
                 text = td.get_text()
                 if '基金经理' in text:
-                    # 提取经理名字（在 <a> 标签里）
                     managers = [a.get_text().strip() for a in td.find_all('a')]
                     if managers:
                         return managers
 
-        # 备用方案：从页面文本中搜索
         page_text = soup.get_text()
         if '基金经理' in page_text:
             return ["[页面已获取但解析失败，请人工确认]"]

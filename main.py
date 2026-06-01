@@ -88,7 +88,9 @@ def main():
 
     elif command == 'quarterly':
         from quarterly_check import run_quarterly_check
-        run_quarterly_check()
+        # 支持 python main.py quarterly 2026Q1
+        period = sys.argv[2] if len(sys.argv) > 2 else None
+        run_quarterly_check(period)
 
     elif command == 'monthly':
         from monthly_check import run_monthly_check
@@ -107,7 +109,7 @@ def main():
     elif command == 'pool':
         from pool_manager import run_pool_scan
         run_pool_scan()
-        
+
     elif command == 'help':
         show_help()
 
