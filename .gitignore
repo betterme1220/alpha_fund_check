@@ -10,3 +10,5 @@ data/raw/
 *.pdf
 data/raw/
 *.pdf
+*.xlsx
+alpha_fund_check_nested_backup/
